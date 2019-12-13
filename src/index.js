@@ -1,6 +1,7 @@
 const inq = require("inquirer");
 const { api } = require("./dao");
 const templater = require("./templater");
+const pdfer = require("html-pdf");
 
 const run = async () => {
   let config = {};
@@ -61,8 +62,9 @@ const run = async () => {
   console.log("Filling Template...");
   const filled = await templater.fill({
     username: config.username,
-    profileUrl: profile.url,
+    profileUrl: profile.html_url,
     imageUrl: profile.avatar_url,
+    bio: profile.bio,
     numRepos: repos.length,
     numFollowers: (await user.listFollowers()).data.length,
     numFollowing: (await user.listFollowing()).data.length,
@@ -71,7 +73,16 @@ const run = async () => {
   });
   console.log("template complete");
 
-  await templater.util.writeFile("filled.html", filled, "UTF-8");
+  pdfer
+    .create(filled, { format: "letter" })
+    .toFile(`./${config.username}.pdf`, (err, res) => {
+      if (err) {
+        console.log(err);
+        process.exit(1);
+      } else {
+        console.log("PDF created");
+      }
+    });
 };
 
 run();
