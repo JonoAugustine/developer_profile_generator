@@ -19,4 +19,4 @@ const getUser = async username => {
   }
 };
 
-module.exports = { api: { init, getUser } };
+module.exports = { init, getUser };

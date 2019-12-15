@@ -1,7 +1,7 @@
 const inq = require("inquirer");
-const { api } = require("./dao");
-const templater = require("./templater");
 const pdfer = require("html-pdf");
+const api = require("./dao");
+const templater = require("./templater");
 
 const run = async () => {
   let config = {};
