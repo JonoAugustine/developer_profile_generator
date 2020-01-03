@@ -3,12 +3,17 @@ const pdfer = require("html-pdf");
 const api = require("./dao");
 const templater = require("./templater");
 
-const run = async () => {
+/**
+ * Async function to initialize the program
+ */
+const main = async () => {
   let config = {};
   try {
+    /** Attempt to parse the config from the file .config.josn */
     const configRaw = await templater.util.readFile(".config.json", "UTF-8");
     config = JSON.parse(configRaw);
   } catch (e) {
+    /** Use Inquirer to get config data */
     let password;
     let { useToken } = await inq.prompt([
       {
@@ -48,17 +53,19 @@ const run = async () => {
 
   const color = templater.colors[config.color];
 
-  if (typeof config.password === "string")
-    api.init(config.username, config.password);
+  // initialize the GitHub API
+  if (typeof config.password === "string") api.init(config.username, config.password);
   else api.init(process.env.GITHUB_TOKEN);
 
+  // Get the GH user, profile, and repos
   const user = await api.getUser(config.username);
   const { data: profile } = await user.getProfile();
-
   const { data: repos } = await user.listRepos();
 
+  // Calculate the number of stars
   const numStars = repos.reduce((acc, cur) => (acc += cur.stargazers_count), 0);
 
+  // Fill the HTML template
   console.log("Filling Template...");
   const filled = await templater.fill({
     username: config.username,
@@ -73,6 +80,7 @@ const run = async () => {
   });
   console.log("template complete");
 
+  // Generate PDF from generated HTML String
   pdfer
     .create(filled, { format: "letter" })
     .toFile(`./${config.username}.pdf`, (err, res) => {
@@ -85,4 +93,4 @@ const run = async () => {
     });
 };
 
-run();
+main();

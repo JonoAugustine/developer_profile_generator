@@ -1,9 +1,13 @@
 const fs = require("fs");
 const util = require("util");
 
+// Promisify file manipulators
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);
 
+/**
+ * Preset color schemes
+ */
 const colors = {
   green: {
     wrapperBackground: "#E6E1C3",
@@ -31,10 +35,11 @@ const colors = {
   }
 };
 
+/** @returns {Promise<String>} A promise of the HTML template string loaded from file.  */
 const template = async () => await readFile("./src/template.html", "UTF-8");
 
 /**
- *
+ * Fills in the HTML template string
  * @param {*} data
  * @param {string} toFill
  * @returns {string} filled HTML template as string
